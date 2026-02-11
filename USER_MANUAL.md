@@ -31,6 +31,8 @@ Before you begin, ensure you have the following installed:
 
 ## 3. Running the Service
 
+### Option A: Running Locally (Python)
+
 To start the server, run:
 
 ```bash
@@ -38,6 +40,18 @@ python api.py
 ```
 
 You should see output indicating the server is running at `http://localhost:8000`.
+
+### Option B: Running with Docker (Recommended for Production)
+
+Docker allows you to run the application in an isolated container without installing Python or FFmpeg on your machine.
+
+1. **Build and Run**:
+
+    ```bash
+    docker-compose up --build
+    ```
+
+2. **Access**: The API will be available at `http://localhost:8000`.
 
 ## 4. How to Use
 

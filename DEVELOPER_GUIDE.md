@@ -16,28 +16,41 @@ graph TD
     STT -->|5. Aggregate| Result[JSON Result with Timestamps]
 ```
 
-## 🎯 Design Decisions
+## 🎯 Deep Dive: Design Decisions & Rationale
 
 ### 1. Audio Format Handling
 
-**Decision**: Use `pydub` library with FFmpeg backend.
-**Rationale**:
+**Problem**: Different formats (MP3, WAV, etc.) require different decoders.
+**Solution**: Unified conversion pipeline using FFmpeg (`pydub`).
 
-- Provides a consistent interface for format conversion.
-- Automatically handles normalization (16kHz, Mono) required for speech recognition.
+**Implementation**:
 
-### 2. Long Audio Files
+- All inputs are converted to **16kHz Mono WAV** before processing.
+- This ensures compatibility with any Speech-to-Text engine (Google, Whisper, etc.).
+- **Why?**: Consistency. By normalizing early, the rest of the pipeline only has to handle one format.
 
-**Decision**: Intelligent chunking strategy.
+### 2. Handling Long Audio Files
 
-- **Primary**: Split on silence (natural pauses).
-- **Fallback**: Fixed-time chunking if silence detection fails.
-**Rationale**: Standard STT APIs often have time limits. Chunking allows processing arbitrarily long files while maintaining context.
+**Problem**: API timeouts and memory limits on 60-minute+ files.
+**Solution**: Intelligent dual-chunking strategy.
 
-### 3. Asynchronous Processing
+- **Primary Strategy**: **Silence-Based Chunking**. Splits audio at natural pauses (>500ms silence). This preserves sentence context.
+- **Fallback Strategy**: **Time-Based Chunking**. If silence detection fails (e.g., continuous music background), it falls back to fixed 60-second chunks.
+- **Why?**: Guaranteed processing. The system will never fail just because a file is "too long."
 
-**Decision**: FastAPI `BackgroundTasks`.
-**Rationale**: Transcription is slow. Async processing prevents blocking the API thread and allows the client to receive immediate confirmation (Job ID) while work happens in the background.
+### 3. Asynchronous Processing Architecture
+
+**Problem**: Transcription is slow (approx 1:1 real-time). Keeping a user waiting on an HTTP request will cause a timeout.
+**Implementation**:
+
+- **FastAPI BackgroundTasks**: The API returns a `job_id` immediately (Status: Pending).
+- The heavy lifting happens in a background worker thread.
+- **Production Scaling**: This design easily scales by replacing `BackgroundTasks` with a dedicated queue like **RabbitMQ** or **Redis + Celery**, without changing the client-facing API.
+
+### 4. Timestamp Precision
+
+**Decision**: Calculate timestamps manually from chunk offsets.
+**Why?**: Many free Speech-to-Text APIs (like Google's basic tier) return text *without* timestamps. By tracking the duration of each audio chunk, we can reconstruct the timeline (e.g., Chunk 2 starts where Chunk 1 ended) with millisecond precision, regardless of the engine used.
 
 ## 📚 API Specification
 

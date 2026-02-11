@@ -1,0 +1,25 @@
+# Core dependencies
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+aiofiles==23.2.1
+
+# Audio processing
+pydub==0.25.1
+SpeechRecognition==3.10.1
+
+# Additional dependencies
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Optional: Alternative speech recognition
+# openai-whisper==20231117
+# assemblyai==0.17.0
+
+# Development dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.26.0
+
+# Note: FFmpeg is required for audio format conversion
+# Install separately: apt-get install ffmpeg (Linux) or brew install ffmpeg (Mac)

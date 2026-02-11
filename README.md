@@ -6,7 +6,6 @@ A production-ready service that transcribes audio files into text with precise t
 
 - **[User Manual](USER_MANUAL.md)**: Easy step-by-step guide to run the service.
 - **[Developer Guide](DEVELOPER_GUIDE.md)**: Technical architecture, API specs, and design decisions.
-- **[Video Demo (File)](VIDEO_SCRIPT.md)**: Script for the demo video.
 
 ## ✨ Features
 
